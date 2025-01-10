@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus E-Voting</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        .container {
+            width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        input[type="text"], input[type="password"], button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .error, .success {
+            color: red;
+            text-align: center;
+        }
+        .success {
+            color: green;
+        }
+        #printBtn {
+            display: none;
+        }
+        .candidate {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Login Form -->
+<div class="container" id="login-container">
+    <h2>Login</h2>
+    <p class="error" id="login-error"></p>
+    <form id="login-form">
+        <input type="text" id="matric_number" placeholder="Matriculation Number" required><br>
+        <input type="text" id="jamb_number" placeholder="JAMB Number" required><br>
+        <input type="password" id="password" placeholder="Password" required><br>
+        <button type="submit">Login</button>
+    </form>
+</div>
+
+<!-- Voting Form (Only accessible after login) -->
+<div class="container" id="vote-container" style="display:none;">
+    <h2>Select Your Candidate</h2>
+    <p class="success" id="vote-success"></p>
+    
+    <!-- Sample candidates list -->
+    <div class="candidate">
+        <input type="radio" name="candidate" value="1" id="candidate1" required> Candidate 1 - President
+    </div>
+    <div class="candidate">
+        <input type="radio" name="candidate" value="2" id="candidate2" required> Candidate 2 - Vice President
+    </div>
+    <div class="candidate">
+        <input type="radio" name="candidate" value="3" id="candidate3" required> Candidate 3 - Secretary
+    </div>
+    
+    <button id="voteBtn">Vote</button>
+    <button id="printBtn">Print Voting Slip</button>
+</div>
+
+<script>
+    let users = [
+        { matric_number: "123456", jamb_number: "789101", password: "password123" } // Sample user data
+    ];
+
+    let votes = {
+        1: 0, // Candidate 1 votes
+        2: 0, // Candidate 2 votes
+        3: 0  // Candidate 3 votes
+    };
+
+    // Face verification simulation (simplified)
+    function verifyFace() {
+        // Simulate face verification (always returns true for simplicity)
+        return true;
+    }
+
+    // Simulate login process
+    document.getElementById('login-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        let matric_number = document.getElementById('matric_number').value;
+        let jamb_number = document.getElementById('jamb_number').value;
+        let password = document.getElementById('password').value;
+
+        let user = users.find(user => user.matric_number === matric_number && user.jamb_number === jamb_number);
+
+        if (user && user.password === password) {
+            if (verifyFace()) {
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('vote-container').style.display = 'block';
+            } else {
+                document.getElementById('login-error').textContent = 'Face verification failed.';
+            }
+        } else {
+            document.getElementById('login-error').textContent = 'Invalid credentials!';
+        }
+    });
+
+    // Handle voting
+    document.getElementById('voteBtn').addEventListener('click', function() {
+        let selectedCandidate = document.querySelector('input[name="candidate"]:checked');
+        
+        if (selectedCandidate) {
+            let candidateId = selectedCandidate.value;
+            votes[candidateId]++;
+            document.getElementById('vote-success').textContent = "Your vote has been successfully recorded!";
+        } else {
+            alert("Please select a candidate to vote for.");
+        }
+    });
+
+    // Print Voting Slip
+    document.getElementById('printBtn').addEventListener('click', function() {
+        let selectedCandidate = document.querySelector('input[name="candidate"]:checked');
+        if (selectedCandidate) {
+            let candidateId = selectedCandidate.value;
+            let candidateName = document.querySelector(`label[for='candidate${candidateId}']`).textContent;
+            let content = `
+                <h2>Your Voting Slip</h2>
+                <p><strong>Matriculation Number:</strong> ${document.getElementById('matric_number').value}</p>
+                <p><strong>JAMB Number:</strong> ${document.getElementById('jamb_number').value}</p>
+                <p><strong>Voted Candidate:</strong> ${candidateName}</p>
+            `;
+            let printWindow = window.open('', '', 'height=400,width=600');
+            printWindow.document.write(content);
+            printWindow.document.close();
+            printWindow.print();
+        }
+    });
+</script>
+
+</body>
+</html>
